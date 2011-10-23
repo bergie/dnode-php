@@ -33,6 +33,29 @@ class DNode extends EventEmitter
         }
 
         $stream = stream_socket_client("tcp://{$params['host']}:{$params['port']}");
+        $this->handleConnection($stream, $params);
+    }
+
+    public function listen()
+    {
+        $params = $this->protocol->parseArgs(func_get_args());
+        if (!isset($params['host'])) {
+            $params['host'] = '127.0.0.1';
+        }
+
+        if (!isset($params['port'])) {
+            throw new \Exception("For now we only support TCP connections to a defined port");
+        }
+
+        $server = stream_socket_server("tcp://{$params['host']}:{$params['port']}");
+
+        while ($stream = stream_socket_accept($server)) {
+            $this->handleConnection($stream, $params);
+        }
+    }
+
+    private function handleConnection($stream, $params)
+    {
         $client = $this->protocol->create();
         foreach ($this->stack as $middleware) {
             call_user_func($middleware, array($client->instance, $client->remote, $client));
@@ -82,20 +105,6 @@ class DNode extends EventEmitter
                 $readied = true;
             }
         }
-    }
-
-    public function listen()
-    {
-        $params = $this->protocol->parseArgs(func_get_args());
-        if (!isset($params['host'])) {
-            $params['host'] = '127.0.0.1';
-        }
-
-        if (!isset($params['port'])) {
-            throw new \Exception("For now we only support TCP connections to a defined port");
-        }
-
-        var_dump($params);
     }
 
     public function end()

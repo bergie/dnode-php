@@ -115,12 +115,32 @@ class Session extends EventEmitter
 
         // TODO: Deep traversal
         foreach ($obj as $id => $node) {
-            if (is_object($node) && $node instanceof \Closure) {
-                $this->callbacks[$this->cbId] = $node;
-                $this->wrapped[] = $node;
-                $paths[$this->cbId] = array($id);
-                $this->cbId++;
-                $obj[$id] = '[Function]';
+            if (is_object($node)) {
+                if ($node instanceof \Closure) {
+                    $this->callbacks[$this->cbId] = $node;
+                    $this->wrapped[] = $node;
+                    $paths[$this->cbId] = array($id);
+                    $this->cbId++;
+                    $obj[$id] = '[Function]';
+                    continue;
+                }
+
+                $reflector = new \ReflectionClass($node);
+                $methods = $reflector->getMethods();
+                foreach ($methods as $method) {
+                    if (!$method->isPublic()) {
+                        continue;
+                    }
+
+                    $methodName = $method->getName();
+
+                    $this->callbacks[$this->cbId] = function() use ($methodName, $node) {
+                        call_user_func_array(array($node, $methodName), func_get_args());
+                    };
+                    $paths[$this->cbId] = array($id, $methodName);
+                    $this->cbId++;
+                    $node->$methodName = '[Function]';
+                }
             }
         }
 
@@ -144,7 +164,7 @@ class Session extends EventEmitter
                     $session->request((int) $id, func_get_args());
                 };
             }
-            $location = $args;
+            $location =& $args;
             foreach ($path as $part) {
                 if (is_array($location)) {
                     $location =& $location[$part];
