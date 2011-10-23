@@ -37,9 +37,27 @@ class DNode extends EventEmitter
 
         $buffer = '';
         $started = false;
+        $readied = false;
         while (true) {
-            while ($client->requests) {
-                fwrite($stream, json_encode(array_pop($client->requests)) . "\n");
+            $readables = array($stream);
+            $writables = array($stream);
+            $priority = null;
+            if (0 < stream_select($readables, $writables, $priority, null)) {
+                foreach ($readables as $readable) {
+                    $buffer .= fread($readable, 2046); 
+                    if (preg_match('/\n/', $buffer)) {
+                        // We got a full command, run it
+                        $client->parse($buffer);
+                        $buffer = '';
+                    }
+                }
+
+                foreach ($writables as $writable) {
+                    if (!count($client->requests)) {
+                        continue;
+                    }
+                    fwrite($writable, json_encode(array_pop($client->requests)) . "\n");
+                }
             }
 
             if (!$started) {
@@ -47,22 +65,16 @@ class DNode extends EventEmitter
                 $started = true;
             }
 
-            if ($client->ready) {
+            if ($client->ready && !$readied) {
                 if (isset($params['block'])) {
                     call_user_func($params['block'], $client->remote, $stream);
                 } 
+                $readied = true;
             }
 
             if (feof($stream)) {
                 break;
             }
-
-            $buffer .= fread($stream, 2046);
-            if (!preg_match('/\n/', $buffer)) {
-                continue;
-            }
-            $client->parse($buffer);
-            $buffer = '';
         }
         $client->emit('end');
     }
