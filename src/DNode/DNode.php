@@ -32,7 +32,10 @@ class DNode extends EventEmitter
             throw new \Exception("For now we only support TCP connections to a defined port");
         }
 
-        $stream = stream_socket_client("tcp://{$params['host']}:{$params['port']}");
+        $stream = @stream_socket_client("tcp://{$params['host']}:{$params['port']}");
+        if (!$stream) {
+            throw new \RuntimeException("No connection to DNode server in tcp://{$params['host']}:{$params['port']}");
+        }
         $this->handleConnection($stream, $params);
     }
 
@@ -103,6 +106,10 @@ class DNode extends EventEmitter
                     call_user_func($params['block'], $client->remote, $client);
                 } 
                 $readied = true;
+            }
+
+            if ($connected && feof($stream)) {
+                $client->end();
             }
         }
     }
