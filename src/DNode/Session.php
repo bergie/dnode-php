@@ -16,6 +16,9 @@ class Session extends EventEmitter
     // Remote methods that were wrapped, by callback ID
     private $wrapped = array();
 
+    // Wrapped object
+    private $wrapper;
+
     // Remote methods
     public $remote = array();
 
@@ -28,12 +31,13 @@ class Session extends EventEmitter
     public function __construct($id, $wrapper)
     {
         $this->id = $id;
+        $this->wrapper = $wrapper;
     }
 
     public function start()
     {
         // Send our methods to the other party
-        $this->request('methods', array($this));
+        $this->request('methods', array($this->wrapper));
     }
 
     public function end()

@@ -6,7 +6,7 @@ class Protocol
     private $wrapper;
     private $sessions = array();
 
-    public function construct($wrapper)
+    public function __construct($wrapper)
     {
         $this->wrapper = $wrapper;
     }

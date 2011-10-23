@@ -9,6 +9,9 @@ class DNode extends EventEmitter
 
     public function __construct($wrapper = null)
     {
+        if (is_null($wrapper)) {
+            $wrapper = new \StdClass();
+        }
         $this->protocol = new Protocol($wrapper);
     }
 
@@ -83,6 +86,16 @@ class DNode extends EventEmitter
 
     public function listen()
     {
+        $params = $this->protocol->parseArgs(func_get_args());
+        if (!isset($params['host'])) {
+            $params['host'] = '127.0.0.1';
+        }
+
+        if (!isset($params['port'])) {
+            throw new \Exception("For now we only support TCP connections to a defined port");
+        }
+
+        var_dump($params);
     }
 
     public function end()
