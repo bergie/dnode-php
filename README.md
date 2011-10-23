@@ -5,9 +5,8 @@ This project implements the DNode remote procedure call protocol for PHP. The in
 
 ## Current limitations
 
-* PHP can only act as a client
 * Only regular, non-encrypted TCP sockets are supported
-* PHP methods cannot yet be exposed to Node, except as method response callbacks
+* Only one simultaneous connection supported
 
 ## Performance
 
