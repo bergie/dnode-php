@@ -4,14 +4,26 @@ use Evenement\EventEmitter;
 
 class Session extends EventEmitter
 {
+    // Session ID
     public $id = '';
-    private $scrubber;
-    private $wrapped = array();
-    public $remote = array();
-    public $requests = array();
+
+    // Wrapped local callbacks, by callback ID
     private $callbacks = array();
+
+    // Latest callback ID used
     private $cbId = 0;
+
+    // Remote methods that were wrapped, by callback ID
+    private $wrapped = array();
+
+    // Remote methods
+    public $remote = array();
+
+    // Whether the session is ready for operation
     public $ready = false;
+
+    // Requests we haven't sent yet
+    public $requests = array();
 
     public function __construct($id, $wrapper)
     {
@@ -20,12 +32,16 @@ class Session extends EventEmitter
 
     public function start()
     {
+        // Send our methods to the other party
         $this->request('methods', array($this));
     }
 
     public function request($method, $args)
     {
+        // Wrap callbacks in arguments
         $scrub = $this->scrub($args);
+
+        // Append to unsent requests queue
         $this->requests[] = array(
             'method' => $method,
             'arguments' => $scrub['arguments'],
@@ -34,22 +50,27 @@ class Session extends EventEmitter
         );
     }
 
-    public function parse($line) {
-        var_dump($line);
+    public function parse($line)
+    {
         // TODO: Error handling for JSON parsing
         $msg = json_decode($line);
         // TODO: Try/catch handle
         $this->handle($msg);
     }
 
-    public function handle($req) {
+    public function handle($req)
+    {
         $session = $this;
+
+        // Register callbacks from request
         $args = $this->unscrub($req);
 
         if ($req->method == 'methods') {
+            // Got a methods list from the remote
             return $this->handleMethods($args[0]);
         }
         if ($req->method == 'error') {
+            // Got an error from the remote
             return $this->emit('remoteError', array($args[0]));
         }
         if (is_string($req->method)) {
@@ -65,10 +86,9 @@ class Session extends EventEmitter
 
     private function handleMethods($methods)
     {
-        if (!is_array($methods)) {
-            $methods = array();
+        if (!is_object($methods)) {
+            $methods = new StdClass();
         }
-
         $this->remote = array();
         foreach ($methods as $key => $value) {
             $this->remote[$key] = $value;
@@ -107,16 +127,23 @@ class Session extends EventEmitter
      * id and return a callback of its own. 
      */
     private function unscrub($msg) {
-        $args = array();
+        $args = $msg->arguments;
         $session = $this;
-        foreach ($msg->callbacks as $id => $value) {
-            $method = $value[1];
+        foreach ($msg->callbacks as $id => $path) {
             if (!isset($this->wrapped[$id])) {
-                $this->wrapped[$id] = function() use ($session, $method) {
-                    $session->request($method, func_get_args());
+                $this->wrapped[$id] = function() use ($session, $id) {
+                    $session->request($id, func_get_args());
                 };
             }
-            $args[$id] = array($method => $this->wrapped[$id]);
+            $location = $args;
+            foreach ($path as $part) {
+                if (is_array($location)) {
+                    $location =& $location[$part];
+                    continue;
+                }
+                $location =& $location->$part;
+            }
+            $location = $this->wrapped[$id];
         }
         return $args;
     }
