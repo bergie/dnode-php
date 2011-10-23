@@ -83,7 +83,13 @@ class DNode extends EventEmitter
                     $buffer .= fread($readable, 2046); 
                     if (preg_match('/\n/', $buffer)) {
                         // We got a full command, run it
-                        $client->parse($buffer);
+                        $commands = explode("\n", $buffer);
+                        foreach ($commands as $command) {
+                            if (empty($command)) {
+                                continue;
+                            }
+                            $client->parse($command);
+                        }
                         $buffer = '';
                     }
                 }
