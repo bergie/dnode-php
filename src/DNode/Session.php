@@ -36,6 +36,11 @@ class Session extends EventEmitter
         $this->request('methods', array($this));
     }
 
+    public function end()
+    {
+        $this->emit('end');
+    }
+
     public function request($method, $args)
     {
         // Wrap callbacks in arguments
@@ -65,11 +70,11 @@ class Session extends EventEmitter
         // Register callbacks from request
         $args = $this->unscrub($req);
 
-        if ($req->method == 'methods') {
+        if ($req->method === 'methods') {
             // Got a methods list from the remote
             return $this->handleMethods($args[0]);
         }
-        if ($req->method == 'error') {
+        if ($req->method === 'error') {
             // Got an error from the remote
             return $this->emit('remoteError', array($args[0]));
         }
@@ -80,14 +85,14 @@ class Session extends EventEmitter
             return $this->emit('error', array("Request for non-enumerable method: {$req->method}"));
         }
         if (is_numeric($req->method)) {
-            call_user_func_array(array($this, $this->scrubber->callbacks[$req->method]), $args);
+            call_user_func_array($this->callbacks[$req->method], $args);
         }
     }
 
     private function handleMethods($methods)
     {
         if (!is_object($methods)) {
-            $methods = new StdClass();
+            $methods = new \StdClass();
         }
         $this->remote = array();
         foreach ($methods as $key => $value) {
@@ -109,7 +114,7 @@ class Session extends EventEmitter
             if (is_object($node) && $node instanceof \Closure) {
                 $this->callbacks[$this->cbId] = $node;
                 $this->wrapped[] = $node;
-                $paths[$id] = $this->cbId;
+                $paths[$this->cbId] = array($id);
                 $this->cbId++;
                 $obj[$id] = '[Function]';
             }
@@ -132,7 +137,7 @@ class Session extends EventEmitter
         foreach ($msg->callbacks as $id => $path) {
             if (!isset($this->wrapped[$id])) {
                 $this->wrapped[$id] = function() use ($session, $id) {
-                    $session->request($id, func_get_args());
+                    $session->request((int) $id, func_get_args());
                 };
             }
             $location = $args;

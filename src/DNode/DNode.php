@@ -38,7 +38,14 @@ class DNode extends EventEmitter
         $buffer = '';
         $started = false;
         $readied = false;
-        while (true) {
+        $connected = true;
+
+        $client->on('end', function() use (&$connected, $stream) {
+            $connected = false;
+            fclose($stream);
+        });
+
+        while ($connected) {
             $readables = array($stream);
             $writables = array($stream);
             $priority = null;
@@ -67,16 +74,11 @@ class DNode extends EventEmitter
 
             if ($client->ready && !$readied) {
                 if (isset($params['block'])) {
-                    call_user_func($params['block'], $client->remote, $stream);
+                    call_user_func($params['block'], $client->remote, $client);
                 } 
                 $readied = true;
             }
-
-            if (feof($stream)) {
-                break;
-            }
         }
-        $client->emit('end');
     }
 
     public function listen()
