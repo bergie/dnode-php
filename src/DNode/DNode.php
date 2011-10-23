@@ -79,6 +79,13 @@ class DNode extends EventEmitter
             $writables = array($stream);
             $priority = null;
             if (0 < stream_select($readables, $writables, $priority, null)) {
+                foreach ($writables as $writable) {
+                    if (!count($client->requests)) {
+                        continue;
+                    }
+                    fwrite($writable, json_encode(array_shift($client->requests)) . "\n");
+                }
+
                 foreach ($readables as $readable) {
                     $buffer .= fread($readable, 2046); 
                     if (preg_match('/\n/', $buffer)) {
@@ -92,13 +99,6 @@ class DNode extends EventEmitter
                         }
                         $buffer = '';
                     }
-                }
-
-                foreach ($writables as $writable) {
-                    if (!count($client->requests)) {
-                        continue;
-                    }
-                    fwrite($writable, json_encode(array_pop($client->requests)) . "\n");
                 }
             }
 

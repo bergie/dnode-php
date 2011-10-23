@@ -12,7 +12,7 @@ class RemoteProxy
 
     public function __call($method, $args)
     {
-        if (!$this->methods[$method]) {
+        if (!isset($this->methods[$method])) {
             throw new \Exception("Method {$method} not available");
         }
 

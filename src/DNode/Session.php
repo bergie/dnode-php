@@ -32,6 +32,8 @@ class Session extends EventEmitter
     {
         $this->id = $id;
         $this->wrapper = $wrapper;
+        $this->remote = new RemoteProxy();
+        $this->wrapper->remote =& $this->remote;
     }
 
     public function start()
@@ -98,7 +100,7 @@ class Session extends EventEmitter
         if (!is_object($methods)) {
             $methods = new \StdClass();
         }
-        $this->remote = new RemoteProxy();
+
         foreach ($methods as $key => $value) {
             $this->remote->setMethod($key, $value);
         }
@@ -118,7 +120,6 @@ class Session extends EventEmitter
             if (is_object($node)) {
                 if ($node instanceof \Closure) {
                     $this->callbacks[$this->cbId] = $node;
-                    $this->wrapped[] = $node;
                     $paths[$this->cbId] = array($id);
                     $this->cbId++;
                     $obj[$id] = '[Function]';
