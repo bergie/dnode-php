@@ -20,7 +20,7 @@ class Session extends EventEmitter
     private $wrapper;
 
     // Remote methods
-    public $remote = array();
+    public $remote;
 
     // Whether the session is ready for operation
     public $ready = false;
@@ -98,9 +98,9 @@ class Session extends EventEmitter
         if (!is_object($methods)) {
             $methods = new \StdClass();
         }
-        $this->remote = array();
+        $this->remote = new RemoteProxy();
         foreach ($methods as $key => $value) {
-            $this->remote[$key] = $value;
+            $this->remote->setMethod($key, $value);
         }
 
         $this->emit('remote', array($this->remote));
