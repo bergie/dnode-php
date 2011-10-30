@@ -1,7 +1,33 @@
 DNode protocol for PHP
 ======================
 
-This project implements the DNode remote procedure call protocol for PHP. The intent is to enable PHP scripts to act as part of a distributed Node.js cloud, allowing Node to call PHP code, and PHP to call Node code.
+This project implements the [DNode](http://substack.net/posts/85e1bd/DNode-Asynchronous-Remote-Method-Invocation-for-Node-js-and-the-Browser) remote procedure call protocol for PHP. The intent is to enable PHP scripts to act as part of a distributed Node.js cloud, allowing Node to call PHP code, and PHP to call Node code.
+
+## Installing
+
+dnode-php can be installed using the [Composer](http://packagist.org/) tool. You can either add `dnode/dnode` to your package dependencies, or if you want to install dnode-php as standalone, go to the main directory of this package and run:
+
+    $ wget http://getcomposer.org/composer.phar 
+    $ php composer.phar install
+
+You can then use the composer-generated autoloader to access the DNode classes:
+
+    require 'vendor/.composer/autoload.php';
+
+## Running the examples
+
+After installing, you can run the DNode examples located in the examples directory. Each example contains both a client and a server.
+
+For example:
+
+    $ php examples/simple/server.php
+    $ php examples/simple/client.php 
+    n = 3300
+
+The examples have been written to be compatible with the [DNode examples](https://github.com/substack/dnode/tree/master/examples), meaning that you can use any combination of PHP-to-PHP, Node-to-Node, PHP-to-Node, or Node-to-PHP as you wish.
+
+   $ node simple/client.js 
+   n = 3300
 
 ## Current limitations
 
