@@ -1,6 +1,6 @@
 <?php
-// Include standard autoloader
-require(__DIR__.'/../autoloader.php');
+// Include Composer-generated autoloader
+require(__DIR__.'/../../vendor/.composer/autoload.php');
 
 // This is the class we're exposing to DNode
 class Converter
