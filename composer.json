@@ -1,0 +1,25 @@
+{
+    "name": "dnode/dnode",
+    "type": "library",
+    "description": "DNode RPC protocol for PHP 5.3",
+    "keywords": ["dnode", "nodejs", "rpc"],
+    "homepage": "https://github.com/bergie/dnode-php",
+    "version": "0.0.1",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Henri Bergius",
+            "email": "henri.bergius@iki.fi",
+            "homepage": "http://bergie.iki.fi/"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "evenement/evenement": "=0.1.0"
+    },
+    "autoload": {
+        "psr0": {
+            "DNode": "src"
+        }
+    }
+}
