@@ -8,7 +8,7 @@ class Temp
     // Compute the client's temperature and stuff that value into the callback
     public function temperature($cb)
     {
-        $degC = 20;
+        $degC = rand(-20, 50);
         echo "{$degC}° C\n";
         $cb($degC);
     }
