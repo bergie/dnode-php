@@ -16,8 +16,10 @@ class Temp
 
 $dnode = new DNode\DNode(new Temp());
 $dnode->connect(6060, function($remote, $connection) {
+    // Ask server for temperature in Fahrenheit
     $remote->clientTempF(function($degF) use ($connection) {
         echo "{$degF}° F\n";
+        // Close the connection
         $connection->end();
     });
 });
