@@ -5,6 +5,11 @@ class RemoteProxy
 {
     private $methods = array();
 
+    public function getMethods() 
+    {
+      return $this->methods;
+    }
+
     public function setMethod($method, $closure)
     {
         $this->methods[$method] = $closure;
