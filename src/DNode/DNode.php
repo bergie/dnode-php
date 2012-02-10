@@ -57,7 +57,7 @@ class DNode extends EventEmitter
         }
     }
 
-    private function handleConnection($stream, $params)
+    protected function handleConnection($stream, $params)
     {
         $client = $this->protocol->create();
         foreach ($this->stack as $middleware) {
