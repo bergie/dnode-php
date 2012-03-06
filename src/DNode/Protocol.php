@@ -36,11 +36,11 @@ class Protocol
 
         foreach ($args as $arg) {
             if (is_string($arg)) {
-                if (preg_match('/^\d+$/')) {
+                if (preg_match('/^\d+$/', $arg)) {
                     $params['port'] = $arg;
                     continue;
                 }
-                if (preg_match('^/')) {
+                if (preg_match('/^\\//', $arg)) {
                     $params['path'] = $arg;
                     continue;
                 }
