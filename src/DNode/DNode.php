@@ -68,6 +68,11 @@ class DNode extends EventEmitter
         $started = false;
         $readied = false;
         $connected = true;
+        $emptySelectCount = 0;
+        $emptySelectThreshold = 10;
+        $interval = 0;
+        $intervalStep = 100000;
+        $intervalMax = 10000000;
 
         $client->on('end', function() use (&$connected, $stream) {
             $connected = false;
@@ -79,6 +84,16 @@ class DNode extends EventEmitter
             $writables = array($stream);
             $priority = null;
             if (0 < stream_select($readables, $writables, $priority, null)) {
+                if (sizeof($readables) > 0 || count($client->requests) > 0) {
+                    $emptySelectCount = 0;
+                    $interval = 0;
+                } else if (++$emptySelectCount > $emptySelectThreshold) {
+                    $emptySelectCount = 0;
+                    if ($interval + $intervalStep <= $intervalMax) {
+                        $interval += $intervalStep;
+                    }
+                }
+
                 foreach ($writables as $writable) {
                     if (!count($client->requests)) {
                         continue;
@@ -87,7 +102,7 @@ class DNode extends EventEmitter
                 }
 
                 foreach ($readables as $readable) {
-                    $buffer .= fread($readable, 2046); 
+                    $buffer .= fread($readable, 2046);
                     if (preg_match('/\n/', $buffer)) {
                         // We got a full command, run it
                         $commands = explode("\n", $buffer);
@@ -100,6 +115,11 @@ class DNode extends EventEmitter
                         $buffer = '';
                     }
                 }
+            } else if (++$emptySelectCount > $emptySelectThreshold) {
+                $emptySelectCount = 0;
+                if ($interval + $intervalStep <= $intervalMax) {
+                    $interval += $intervalStep;
+                }
             }
 
             if (!$started) {
@@ -110,13 +130,15 @@ class DNode extends EventEmitter
             if ($client->ready && !$readied) {
                 if (isset($params['block'])) {
                     call_user_func($params['block'], $client->remote, $client);
-                } 
+                }
                 $readied = true;
             }
 
             if ($connected && feof($stream)) {
                 $client->end();
             }
+
+            time_nanosleep(0, $interval);
         }
     }
 
