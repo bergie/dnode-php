@@ -76,18 +76,26 @@ class DNode extends EventEmitter
 
         while ($connected) {
             $readables = array($stream);
-            $writables = array($stream);
             $priority = null;
+
+            if (sizeof($client->requests) > 0) {
+                $writables = array($stream);
+            } else {
+                $writables = null;
+            }
+
             if (0 < stream_select($readables, $writables, $priority, null)) {
-                foreach ($writables as $writable) {
-                    if (!count($client->requests)) {
-                        continue;
+                if ($writables) {
+                    foreach ($writables as $writable) {
+                        if (!count($client->requests)) {
+                            continue;
+                        }
+                        fwrite($writable, json_encode(array_shift($client->requests)) . "\n");
                     }
-                    fwrite($writable, json_encode(array_shift($client->requests)) . "\n");
                 }
 
                 foreach ($readables as $readable) {
-                    $buffer .= fread($readable, 2046); 
+                    $buffer .= fread($readable, 2046);
                     if (preg_match('/\n/', $buffer)) {
                         // We got a full command, run it
                         $commands = explode("\n", $buffer);
@@ -110,7 +118,7 @@ class DNode extends EventEmitter
             if ($client->ready && !$readied) {
                 if (isset($params['block'])) {
                     call_user_func($params['block'], $client->remote, $client);
-                } 
+                }
                 $readied = true;
             }
 
