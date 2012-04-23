@@ -75,6 +75,11 @@ class DNode extends EventEmitter
         });
 
         while ($connected) {
+            if (!$started) {
+                $client->start();
+                $started = true;
+            }
+
             $readables = array($stream);
             $priority = null;
 
@@ -108,11 +113,6 @@ class DNode extends EventEmitter
                         $buffer = '';
                     }
                 }
-            }
-
-            if (!$started) {
-                $client->start();
-                $started = true;
             }
 
             if ($client->ready && !$readied) {
