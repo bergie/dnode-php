@@ -1,17 +1,22 @@
 <?php
 namespace DNode;
 use Evenement\EventEmitter;
+use React\EventLoop\LoopInterface;
+use React\Socket\Server;
+use React\Socket\Connection;
+use React\Socket\ConnectionInterface;
 
 class DNode extends EventEmitter
 {
+    private $loop;
     private $protocol;
     private $stack = array();
 
-    public function __construct($wrapper = null)
+    public function __construct(LoopInterface $loop, $wrapper = null)
     {
-        if (is_null($wrapper)) {
-            $wrapper = new \StdClass();
-        }
+        $this->loop = $loop;
+
+        $wrapper = $wrapper ?: new \StdClass();
         $this->protocol = new Protocol($wrapper);
     }
 
@@ -36,7 +41,10 @@ class DNode extends EventEmitter
         if (!$stream) {
             throw new \RuntimeException("No connection to DNode server in tcp://{$params['host']}:{$params['port']}");
         }
-        $this->handleConnection($stream, $params);
+
+        $conn = new Connection($stream, $this->loop);
+        $this->loop->addReadStream($stream, array($conn, 'handleData'));
+        $this->handleConnection($conn, $params);
     }
 
     public function listen()
@@ -50,82 +58,66 @@ class DNode extends EventEmitter
             throw new \Exception("For now we only support TCP connections to a defined port");
         }
 
-        $server = stream_socket_server("tcp://{$params['host']}:{$params['port']}");
+        $that = $this;
 
-        while ($stream = stream_socket_accept($server)) {
-            $this->handleConnection($stream, $params);
-        }
+        $server = new Server($this->loop);
+        $server->on('connect', function ($conn) use ($that, $params) {
+            $that->handleConnection($conn, $params);
+        });
+        $server->listen($params['port'], $params['host']);
     }
 
-    protected function handleConnection($stream, $params)
+    public function handleConnection(ConnectionInterface $conn, $params)
     {
         $client = $this->protocol->create();
         foreach ($this->stack as $middleware) {
             call_user_func($middleware, array($client->instance, $client->remote, $client));
         }
 
-        $buffer = '';
-        $started = false;
-        $readied = false;
-        $connected = true;
-
-        $client->on('end', function() use (&$connected, $stream) {
-            $connected = false;
-            fclose($stream);
+        $client->on('request', function (array $request) use ($conn) {
+            $conn->write(json_encode($request)."\n");
         });
 
-        while ($connected) {
-            if (!$started) {
-                $client->start();
-                $started = true;
+        if (isset($params['block'])) {
+            $client->on('ready', function () use ($client, $params) {
+                call_user_func($params['block'], $client->remote, $client);
+            });
+        }
+
+        $client->start();
+
+        $conn->on('data', function ($data, $conn) use ($client) {
+            if (!isset($conn->dNodeBuffer)) {
+                $conn->dNodeBuffer = '';
             }
 
-            $readables = array($stream);
-            $priority = null;
-
-            if (sizeof($client->requests) > 0) {
-                $writables = array($stream);
-            } else {
-                $writables = null;
-            }
-
-            if (0 < stream_select($readables, $writables, $priority, null)) {
-                if ($writables) {
-                    foreach ($writables as $writable) {
-                        if (!count($client->requests)) {
-                            continue;
-                        }
-                        fwrite($writable, json_encode(array_shift($client->requests)) . "\n");
+            $conn->dNodeBuffer .= $data;
+            if (false !== strpos($conn->dNodeBuffer, "\n")) {
+                // We got a full command, run it
+                $commands = explode("\n", $conn->dNodeBuffer);
+                foreach ($commands as $command) {
+                    if (empty($command)) {
+                        continue;
                     }
+                    $client->parse($command);
                 }
-
-                foreach ($readables as $readable) {
-                    $buffer .= fread($readable, 2046);
-                    if (preg_match('/\n/', $buffer)) {
-                        // We got a full command, run it
-                        $commands = explode("\n", $buffer);
-                        foreach ($commands as $command) {
-                            if (empty($command)) {
-                                continue;
-                            }
-                            $client->parse($command);
-                        }
-                        $buffer = '';
-                    }
-                }
+                $conn->dNodeBuffer = '';
             }
+        });
 
-            if ($client->ready && !$readied) {
-                if (isset($params['block'])) {
-                    call_user_func($params['block'], $client->remote, $client);
-                }
-                $readied = true;
-            }
-
-            if ($connected && feof($stream)) {
+        $ended = false;
+        $conn->on('end', function () use ($client, &$ended) {
+            if (!$ended) {
+                $ended = true;
                 $client->end();
             }
-        }
+        });
+        $client->on('end', function () use ($conn, &$ended) {
+            if (!$ended) {
+                $ended = true;
+                $conn->end();
+            }
+        });
     }
 
     public function end()
@@ -136,6 +128,7 @@ class DNode extends EventEmitter
 
     public function close()
     {
+        // FIXME: $this->server does not exist
         $this->server->close();
     }
 }

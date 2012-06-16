@@ -1,6 +1,6 @@
 <?php
 // Include Composer-generated autoloader
-require(__DIR__.'/../../vendor/.composer/autoload.php');
+require(__DIR__.'/../../vendor/autoload.php');
 
 // This is the class we're exposing to DNode
 class Zinger
@@ -13,6 +13,10 @@ class Zinger
     }
 }
 
+$loop = new React\EventLoop\StreamSelectLoop();
+
 // Create a DNode server
-$server = new DNode\DNode(new Zinger());
+$server = new DNode\DNode($loop, new Zinger());
 $server->listen(7070);
+
+$loop->run();

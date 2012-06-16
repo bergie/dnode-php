@@ -25,9 +25,6 @@ class Session extends EventEmitter
     // Whether the session is ready for operation
     public $ready = false;
 
-    // Requests we haven't sent yet
-    public $requests = array();
-
     public function __construct($id, $wrapper)
     {
         $this->id = $id;
@@ -52,13 +49,14 @@ class Session extends EventEmitter
         // Wrap callbacks in arguments
         $scrub = $this->scrub($args);
 
-        // Append to unsent requests queue
-        $this->requests[] = array(
+        $request = array(
             'method' => $method,
             'arguments' => $scrub['arguments'],
             'callbacks' => $scrub['callbacks'],
             'links' => $scrub['links']
         );
+
+        $this->emit('request', array($request));
     }
 
     public function parse($line)
@@ -153,8 +151,8 @@ class Session extends EventEmitter
     }
 
     /**
-     * Replace callbacks. The supplied function should take a callback 
-     * id and return a callback of its own. 
+     * Replace callbacks. The supplied function should take a callback
+     * id and return a callback of its own.
      */
     private function unscrub($msg) {
         $args = $msg->arguments;

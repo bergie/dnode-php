@@ -1,19 +1,22 @@
 <?php
 /* Include dependencies */
-require(__DIR__.'/../vendor/.composer/autoload.php');
+require(__DIR__.'/../vendor/autoload.php');
 
 class RemoteSessionClient
 {
     private $value = null;
     private $error = null;
     private $exception = null;
-    private $dnode = null;
+    private $loop = null;
     private $port = 0;
+    private $dnode = null;
 
     public function __construct ($port)
     {
+        $this->loop = new React\EventLoop\StreamSelectLoop();
+
         $this->port = $port;
-        $this->dnode = new DNode\DNode($this);
+        $this->dnode = new DNode\DNode($this->loop, $this);
     }
 
     public function getPropertyValue($path)
@@ -25,6 +28,8 @@ class RemoteSessionClient
                 $connection->end();
             });
         });
+        $this->loop->run();
+
         if ($this->exception != null) {
             $exception = $this->exception;
             $msg = $this->error;
@@ -32,6 +37,7 @@ class RemoteSessionClient
             $this->error = null;
             throw new $exception($msg);
         }
+
         return $this->value;
     }
 
