@@ -16,6 +16,10 @@ class Converter
     }
 }
 
+$loop = new React\EventLoop\StreamSelectLoop();
+
 // Create a DNode server
-$server = new DNode\DNode(new Converter());
+$server = new DNode\DNode($loop, new Converter());
 $server->listen(6060);
+
+$loop->run();

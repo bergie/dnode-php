@@ -14,7 +14,9 @@ class Temp
     }
 }
 
-$dnode = new DNode\DNode(new Temp());
+$loop = new React\EventLoop\StreamSelectLoop();
+
+$dnode = new DNode\DNode($loop, new Temp());
 $dnode->connect(6060, function($remote, $connection) {
     // Ask server for temperature in Fahrenheit
     $remote->clientTempF(function($degF) use ($connection) {
@@ -23,3 +25,5 @@ $dnode->connect(6060, function($remote, $connection) {
         $connection->end();
     });
 });
+
+$loop->run();

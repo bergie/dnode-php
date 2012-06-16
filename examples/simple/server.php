@@ -13,6 +13,10 @@ class Zinger
     }
 }
 
+$loop = new React\EventLoop\StreamSelectLoop();
+
 // Create a DNode server
-$server = new DNode\DNode(new Zinger());
+$server = new DNode\DNode($loop, new Zinger());
 $server->listen(7070);
+
+$loop->run();
