@@ -1,7 +1,7 @@
 <?php
 
 /* Include all dependencies */
-require(__DIR__.'/../vendor/.composer/autoload.php');
+require(__DIR__.'/../vendor/autoload.php');
 
 class RemoteSessionServer
 {
