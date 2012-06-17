@@ -1,7 +1,7 @@
 <?php
 
 /* Include all dependencies */
-require(__DIR__.'/../../vendor/.composer/autoload.php');
+require(__DIR__.'/../../vendor/autoload.php');
 
 class SimpleRemoteRepository
 {
@@ -17,11 +17,13 @@ class SimpleRemoteRepository
      *
      * @param $repository - Repository created with RepositoryFactory.
      * @return new remote repository
-     */ 
+     */
     public function __construct ($repository) {
+        $this->loop = new React\EventLoop\StreamSelectLoop();
+
         $this->repository = $repository;
-        $this->dnode = new DNode\DNode($this);
-    } 
+        $this->dnode = new DNode\DNode($this->loop, $this);
+    }
 
     private function validateSessionName($name, $cb)
     {
@@ -35,12 +37,12 @@ class SimpleRemoteRepository
     /**
      * Get the names of children nodes
      *
-     * @param $sessionName - name of the session 
+     * @param $sessionName - name of the session
      * @param $path - absolute path of the parent node
      * @param $cb - callback function
      *
      * @return void
-     */ 
+     */
     public function getNodes($sessionName, $path, $cb)
     {
         if (!$this->validateSessionName($sessionName, $cb))
@@ -65,12 +67,12 @@ class SimpleRemoteRepository
     /**
      * Get the names of all properties
      *
-     * @param $sessionName - name of the session 
+     * @param $sessionName - name of the session
      * @param $path - absolute path of the node
      * @param $cb - callback function
      *
      * @return void
-     */ 
+     */
     public function getProperties($sessionName, $path, $cb)
     {
         if (!$this->validateSessionName($sessionName, $cb))
@@ -133,7 +135,7 @@ class SimpleRemoteRepository
 
         try {
             $parent = $this->sessions[$sessionName]->getNode($path);
-            $parent->addNode($name, $type); 
+            $parent->addNode($name, $type);
         } catch (\Exception $e) {
             $exception = get_class($e);
             $msg = $e->getMessage();
@@ -152,7 +154,7 @@ class SimpleRemoteRepository
 
         try {
             $parent = $this->sessions[$sessionName]->getNode($path);
-            $parent->setProperty($name, $value, $type); 
+            $parent->setProperty($name, $value, $type);
         } catch (\Exception $e) {
             $exception = get_class($e);
             $msg = $e->getMessage();
@@ -171,6 +173,7 @@ class SimpleRemoteRepository
     public function listen($port)
     {
         $this->dnode->listen($port);
+        $this->loop->run();
     }
 }
 

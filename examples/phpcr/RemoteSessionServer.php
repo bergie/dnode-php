@@ -1,7 +1,7 @@
 <?php
 
 /* Include all dependencies */
-require(__DIR__.'/../vendor/.composer/autoload.php');
+require(__DIR__.'/../vendor/autoload.php');
 
 class RemoteSessionServer
 {
@@ -11,8 +11,10 @@ class RemoteSessionServer
 
     public function __construct ($repository, $credentials, $workspace = null)
     {
-          $this->crSession = $repository->login($credentials, $workspace);
-          $this->dnode = new DNode\DNode($this);
+        $this->loop = new React\EventLoop\StreamSelectLoop();
+
+        $this->crSession = $repository->login($credentials, $workspace);
+        $this->dnode = new DNode\DNode($this->loop, $this);
     }
 
     /* Get value of the property at defined path */
@@ -24,7 +26,7 @@ class RemoteSessionServer
         } catch (\Exception $e) {
             $this->remote->setException(get_class($e), $e->getMessage());
         }
-        $this->remote->setValue($value, function() use ($cb) { 
+        $this->remote->setValue($value, function() use ($cb) {
             $cb();
         });
     }
@@ -32,6 +34,7 @@ class RemoteSessionServer
     public function listen($port)
     {
         $this->dnode->listen($port);
+        $this->loop->run();
     }
 }
 
@@ -47,7 +50,12 @@ $server = new RemoteSessionServer($repository, $credentials);
 $server->listen(6060);
 
 exit;
+
+$loop = new React\EventLoop\StreamSelectLoop();
+
 // Create a DNode server
-$server = new DNode\DNode(new Converter());
+$server = new DNode\DNode($loop, new Converter());
 $server->listen(6060);
+
+$loop->run();
  */

@@ -9,12 +9,12 @@ You can read more about DNode and PHP in the [introductory blog post](http://ber
 
 dnode-php can be installed using the [Composer](http://packagist.org/) tool. You can either add `dnode/dnode` to your package dependencies, or if you want to install dnode-php as standalone, go to the main directory of this package and run:
 
-    $ wget http://getcomposer.org/composer.phar 
+    $ wget http://getcomposer.org/composer.phar
     $ php composer.phar install
 
 You can then use the composer-generated autoloader to access the DNode classes:
 
-    require 'vendor/.composer/autoload.php';
+    require 'vendor/autoload.php';
 
 ## Running the examples
 
@@ -23,12 +23,12 @@ After installing, you can run the DNode examples located in the examples directo
 For example:
 
     $ php examples/simple/server.php
-    $ php examples/simple/client.php 
+    $ php examples/simple/client.php
     n = 3300
 
 The examples have been written to be compatible with the [DNode examples](https://github.com/substack/dnode/tree/master/examples), meaning that you can use any combination of PHP-to-PHP, Node-to-Node, PHP-to-Node, or Node-to-PHP as you wish.
 
-    $ node simple/client.js 
+    $ node simple/client.js
     n = 3300
 
 ## Current limitations
@@ -40,7 +40,7 @@ The examples have been written to be compatible with the [DNode examples](https:
 
 Surprisingly, with simple calls PHP is faster as a DNode client than Node.js. Talking to the _simple example_ DNode server from the dnode repository:
 
-    $ time php examples/simple/client.php 
+    $ time php examples/simple/client.php
     n = 3300
 
     real	0m0.067s
@@ -49,7 +49,7 @@ Surprisingly, with simple calls PHP is faster as a DNode client than Node.js. Ta
 
 The same with a Node.js client:
 
-    $ time node simple/client.js 
+    $ time node simple/client.js
     n = 3300
 
     real	0m0.173s

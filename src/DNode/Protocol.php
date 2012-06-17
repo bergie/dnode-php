@@ -52,7 +52,7 @@ class Protocol
                 $params['port'] = $arg;
                 continue;
             }
-            
+
             if (is_object($arg)) {
                 if ($arg instanceof \Closure) {
                     $params['block'] = $arg;
