@@ -93,15 +93,14 @@ class DNode extends EventEmitter
 
             $conn->dNodeBuffer .= $data;
             if (false !== strpos($conn->dNodeBuffer, "\n")) {
-                // We got a full command, run it
                 $commands = explode("\n", $conn->dNodeBuffer);
+                $tail = array_pop($commands);
+
                 foreach ($commands as $command) {
-                    if (empty($command)) {
-                        continue;
-                    }
                     $client->parse($command);
                 }
-                $conn->dNodeBuffer = '';
+
+                $conn->dNodeBuffer = $tail;
             }
         });
 
