@@ -43,7 +43,6 @@ class DNode extends EventEmitter
         }
 
         $conn = new Connection($stream, $this->loop);
-        $this->loop->addReadStream($stream, array($conn, 'handleData'));
         $this->handleConnection($conn, $params);
     }
 
