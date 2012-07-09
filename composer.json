@@ -1,4 +1,5 @@
 {
+    "minimum-stability": "dev",
     "name": "dnode/dnode",
     "type": "library",
     "description": "DNode RPC protocol for PHP 5.3",

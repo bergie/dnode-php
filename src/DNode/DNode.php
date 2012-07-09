@@ -43,7 +43,6 @@ class DNode extends EventEmitter
         }
 
         $conn = new Connection($stream, $this->loop);
-        $this->loop->addReadStream($stream, array($conn, 'handleData'));
         $this->handleConnection($conn, $params);
     }
 
@@ -61,7 +60,7 @@ class DNode extends EventEmitter
         $that = $this;
 
         $server = new Server($this->loop);
-        $server->on('connect', function ($conn) use ($that, $params) {
+        $server->on('connection', function ($conn) use ($that, $params) {
             $that->handleConnection($conn, $params);
         });
         $server->listen($params['port'], $params['host']);
