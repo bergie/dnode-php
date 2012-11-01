@@ -1,5 +1,6 @@
 <?php
 namespace DNode;
+use React\Socket\ServerInterface;
 
 class Protocol
 {
@@ -70,7 +71,7 @@ class Protocol
                 continue;
             }
 
-            throw new \Exception("Not sure what to do about " . gettype($arg) . " arguments");
+            throw new \InvalidArgumentException("Not sure what to do about " . gettype($arg) . " arguments");
         }
 
         return $params;

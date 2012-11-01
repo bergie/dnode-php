@@ -5,6 +5,7 @@ use React\EventLoop\StreamSelectLoop;
 class FunctionalTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @covers DNode\DNode::__construct
      * @covers DNode\DNode::connect
      * @covers DNode\DNode::listen
      * @test
