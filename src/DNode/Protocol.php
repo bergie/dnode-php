@@ -14,7 +14,7 @@ class Protocol
     public function create()
     {
         // FIXME: Random ID generation, should be unique
-        $id = time();
+        $id = microtime();
         $this->sessions[$id] = new Session($id, $this->wrapper);
         return $this->sessions[$id];
     }
