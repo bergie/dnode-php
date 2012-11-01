@@ -5,7 +5,7 @@ class RemoteProxy
 {
     private $methods = array();
 
-    public function getMethods() 
+    public function getMethods()
     {
       return $this->methods;
     }
@@ -18,7 +18,7 @@ class RemoteProxy
     public function __call($method, $args)
     {
         if (!isset($this->methods[$method])) {
-            throw new \Exception("Method {$method} not available");
+            throw new \BadMethodCallException("Method {$method} not available");
         }
 
         call_user_func_array($this->methods[$method], $args);
