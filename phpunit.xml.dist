@@ -2,7 +2,7 @@
 
 <phpunit backupGlobals="false"
          colors="true"
-         bootstrap="vendor/autoload.php"
+         bootstrap="tests/bootstrap.php"
 >
     <testsuites>
         <testsuite name="DNode-PHP Test Suite">

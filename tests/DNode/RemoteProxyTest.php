@@ -1,7 +1,7 @@
 <?php
 namespace DNode;
 
-class RemoteProxyTest extends \PHPUnit_Framework_TestCase
+class RemoteProxyTest extends TestCase
 {
     public function setUp()
     {
@@ -50,8 +50,8 @@ class RemoteProxyTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function proxyShouldDelegateMissingMethodsWithMagic()
     {
-        $foo = $this->expectCallableOnce('a');
-        $bar = $this->expectCallableOnce('b');
+        $foo = $this->expectCallableOnceWithArg('a');
+        $bar = $this->expectCallableOnceWithArg('b');
 
         $this->proxy->setMethod('foo', $foo);
         $this->proxy->setMethod('bar', $bar);
@@ -68,23 +68,5 @@ class RemoteProxyTest extends \PHPUnit_Framework_TestCase
     public function proxyShouldThrowExceptionOnNonExistentMethod()
     {
         $this->proxy->baz();
-    }
-
-    private function expectCallableOnce($arg)
-    {
-        $callable = $this->getMock('DNode\CallableStub');
-        $callable
-            ->expects($this->once())
-            ->method('__invoke')
-            ->with($arg);
-
-        return $callable;
-    }
-}
-
-class CallableStub
-{
-    public function __invoke()
-    {
     }
 }
