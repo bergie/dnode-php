@@ -33,11 +33,3 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('FOO', $captured);
     }
 }
-
-class Transformer
-{
-    public function transform($input, $callback)
-    {
-        $callback(strtoupper(preg_replace('/[aeiou]{2,}/', 'oo', $input)));
-    }
-}
