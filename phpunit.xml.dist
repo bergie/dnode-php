@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit backupGlobals="false"
+         colors="true"
+         bootstrap="tests/bootstrap.php"
+>
+    <testsuites>
+        <testsuite name="DNode-PHP Test Suite">
+            <directory>./tests/DNode/</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory>./src/</directory>
+        </whitelist>
+    </filter>
+</phpunit>

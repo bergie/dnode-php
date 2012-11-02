@@ -64,6 +64,8 @@ class DNode extends EventEmitter
             $that->handleConnection($conn, $params);
         });
         $server->listen($params['port'], $params['host']);
+
+        return $server;
     }
 
     public function handleConnection(ConnectionInterface $conn, $params)

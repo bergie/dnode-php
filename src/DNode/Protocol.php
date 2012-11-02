@@ -1,5 +1,6 @@
 <?php
 namespace DNode;
+use React\Socket\ServerInterface;
 
 class Protocol
 {
@@ -14,7 +15,7 @@ class Protocol
     public function create()
     {
         // FIXME: Random ID generation, should be unique
-        $id = time();
+        $id = microtime();
         $this->sessions[$id] = new Session($id, $this->wrapper);
         return $this->sessions[$id];
     }
@@ -70,7 +71,7 @@ class Protocol
                 continue;
             }
 
-            throw new \Exception("Not sure what to do about " . gettype($arg) . " arguments");
+            throw new \InvalidArgumentException("Not sure what to do about " . gettype($arg) . " arguments");
         }
 
         return $params;

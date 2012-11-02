@@ -5,6 +5,8 @@ This project implements the [DNode](http://substack.net/posts/85e1bd/DNode-Async
 
 You can read more about DNode and PHP in the [introductory blog post](http://bergie.iki.fi/blog/dnode-make_php_and_node-js_talk_to_each_other/).
 
+[![Build Status](https://secure.travis-ci.org/bergie/dnode-php.png?branch=master)](http://travis-ci.org/bergie/dnode-php)
+
 ## Installing
 
 dnode-php can be installed using the [Composer](http://packagist.org/) tool. You can either add `dnode/dnode` to your package dependencies, or if you want to install dnode-php as standalone, go to the main directory of this package and run:
