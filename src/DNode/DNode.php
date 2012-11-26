@@ -8,9 +8,10 @@ use React\Socket\ConnectionInterface;
 
 class DNode extends EventEmitter
 {
+    public $stack = array();
+
     private $loop;
     private $protocol;
-    private $stack = array();
 
     public function __construct(LoopInterface $loop, $wrapper = null)
     {
@@ -37,12 +38,12 @@ class DNode extends EventEmitter
             throw new \Exception("For now we only support TCP connections to a defined port");
         }
 
-        $stream = @stream_socket_client("tcp://{$params['host']}:{$params['port']}");
-        if (!$stream) {
+        $client = @stream_socket_client("tcp://{$params['host']}:{$params['port']}");
+        if (!$client) {
             throw new \RuntimeException("No connection to DNode server in tcp://{$params['host']}:{$params['port']}");
         }
 
-        $conn = new Connection($stream, $this->loop);
+        $conn = new Connection($client, $this->loop);
         $this->handleConnection($conn, $params);
     }
 
@@ -71,53 +72,13 @@ class DNode extends EventEmitter
     public function handleConnection(ConnectionInterface $conn, $params)
     {
         $client = $this->protocol->create();
-        foreach ($this->stack as $middleware) {
-            call_user_func($middleware, array($client->instance, $client->remote, $client));
-        }
 
-        $client->on('request', function (array $request) use ($conn) {
-            $conn->write(json_encode($request)."\n");
-        });
+        $onReady = isset($params['block']) ? $params['block'] : null;
+        $stream = new Stream($this, $client, $onReady);
 
-        if (isset($params['block'])) {
-            $client->on('ready', function () use ($client, $params) {
-                call_user_func($params['block'], $client->remote, $client);
-            });
-        }
+        $conn->pipe($stream)->pipe($conn);
 
         $client->start();
-
-        $conn->on('data', function ($data, $conn) use ($client) {
-            if (!isset($conn->dNodeBuffer)) {
-                $conn->dNodeBuffer = '';
-            }
-
-            $conn->dNodeBuffer .= $data;
-            if (false !== strpos($conn->dNodeBuffer, "\n")) {
-                $commands = explode("\n", $conn->dNodeBuffer);
-                $tail = array_pop($commands);
-
-                foreach ($commands as $command) {
-                    $client->parse($command);
-                }
-
-                $conn->dNodeBuffer = $tail;
-            }
-        });
-
-        $ended = false;
-        $conn->on('end', function () use ($client, &$ended) {
-            if (!$ended) {
-                $ended = true;
-                $client->end();
-            }
-        });
-        $client->on('end', function () use ($conn, &$ended) {
-            if (!$ended) {
-                $ended = true;
-                $conn->end();
-            }
-        });
     }
 
     public function end()
