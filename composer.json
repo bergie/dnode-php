@@ -4,7 +4,6 @@
     "description": "DNode RPC protocol for PHP 5.3",
     "keywords": ["dnode", "nodejs", "rpc"],
     "homepage": "https://github.com/bergie/dnode-php",
-    "version": "0.0.2",
     "license": "MIT",
     "authors": [
         {
