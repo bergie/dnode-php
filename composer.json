@@ -11,6 +11,10 @@
             "name": "Henri Bergius",
             "email": "henri.bergius@iki.fi",
             "homepage": "http://bergie.iki.fi/"
+        },
+        {
+            "name": "Igor Wiedler",
+            "email": "igor@wiedler.ch"
         }
     ],
     "require": {
