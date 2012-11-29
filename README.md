@@ -38,26 +38,6 @@ The examples have been written to be compatible with the [DNode examples](https:
 * Only regular, non-encrypted TCP sockets are supported
 * Only one simultaneous connection supported
 
-## Performance
-
-Surprisingly, with simple calls PHP is faster as a DNode client than Node.js. Talking to the _simple example_ DNode server from the dnode repository:
-
-    $ time php examples/simple/client.php
-    n = 3300
-
-    real	0m0.067s
-    user	0m0.030s
-    sys	0m0.030s
-
-The same with a Node.js client:
-
-    $ time node simple/client.js
-    n = 3300
-
-    real	0m0.173s
-    user	0m0.140s
-    sys	0m0.030s
-
 ## Development
 
 dnode-php is under heavy development. If you want to participate, please send pull requests.
