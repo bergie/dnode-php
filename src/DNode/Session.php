@@ -42,6 +42,12 @@ class Session extends EventEmitter
     public function end()
     {
         $this->emit('end');
+        $this->removeAllListeners();
+
+        $this->callbacks = array();
+        $this->wrapped = array();
+        $this->remote = null;
+        $this->wrapper = null;
     }
 
     public function request($method, $args)

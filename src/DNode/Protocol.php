@@ -16,8 +16,16 @@ class Protocol
     {
         // FIXME: Random ID generation, should be unique
         $id = microtime();
-        $this->sessions[$id] = new Session($id, $this->wrapper);
-        return $this->sessions[$id];
+        $session = new Session($id, $this->wrapper);
+
+        $that = $this;
+        $session->on('end', function () use ($that, $id) {
+            return $that->destroy($id);
+        });
+
+        $this->sessions[$id] = $session;
+
+        return $session;
     }
 
     public function destroy($id)
