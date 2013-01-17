@@ -28,7 +28,7 @@ For example:
     $ php examples/simple/client.php
     n = 3300
 
-The examples have been written to be compatible with the [DNode examples](https://github.com/substack/dnode/tree/master/examples), meaning that you can use any combination of PHP-to-PHP, Node-to-Node, PHP-to-Node, or Node-to-PHP as you wish.
+The examples have been written to be compatible with the [DNode examples](https://github.com/substack/dnode/tree/master/example), meaning that you can use any combination of PHP-to-PHP, Node-to-Node, PHP-to-Node, or Node-to-PHP as you wish.
 
     $ node simple/client.js
     n = 3300
