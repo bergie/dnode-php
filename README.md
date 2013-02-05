@@ -36,7 +36,6 @@ The examples have been written to be compatible with the [DNode examples](https:
 ## Current limitations
 
 * Only regular, non-encrypted TCP sockets are supported
-* Only one simultaneous connection supported
 
 ## Development
 
