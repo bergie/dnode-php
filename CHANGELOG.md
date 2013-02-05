@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-* 0.1.3 (2012-12-xx)
+* 0.1.3 (2013-02-05)
 
   * Bugfix: Free session object properly in the server context
   * Improve client-side error handling
