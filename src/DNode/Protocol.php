@@ -53,6 +53,10 @@ class Protocol
                     $params['path'] = $arg;
                     continue;
                 }
+                if (preg_match('/\w+:$/', $arg)) {
+                    $params['scheme'] = $arg;
+                    continue;
+                }
                 $params['host'] = $arg;
                 continue;
             }

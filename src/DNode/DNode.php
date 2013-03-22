@@ -3,7 +3,6 @@ namespace DNode;
 use Evenement\EventEmitter;
 use React\EventLoop\LoopInterface;
 use React\Socket\Server;
-use React\Socket\Connection;
 use React\Socket\ConnectionInterface;
 
 class DNode extends EventEmitter
@@ -30,17 +29,25 @@ class DNode extends EventEmitter
     public function connect()
     {
         $params = $this->protocol->parseArgs(func_get_args());
+
+        if (!isset($params['scheme'])) {
+            $params['scheme'] = 'tcp:';
+        }
+
         if (!isset($params['host'])) {
             $params['host'] = '127.0.0.1';
         }
 
         if (!isset($params['port'])) {
-            throw new \Exception("For now we only support TCP connections to a defined port");
+            throw new \Exception("For now we only support connections to a defined port");
         }
 
-        $client = @stream_socket_client("tcp://{$params['host']}:{$params['port']}");
+        $url = "{$params['scheme']}//{$params['host']}:{$params['port']}";
+        $client = @stream_socket_client($url);
+
         if (!$client) {
-            $e = new \RuntimeException("No connection to DNode server in tcp://{$params['host']}:{$params['port']}");
+            $e = new \RuntimeException("No connection to DNode server in $url");
+
             $this->emit('error', array($e));
 
             if (!count($this->listeners('error'))) {
@@ -50,7 +57,7 @@ class DNode extends EventEmitter
             return;
         }
 
-        $conn = new Connection($client, $this->loop);
+        $conn = new Connection($client, $this->loop, $params['scheme']);
         $this->handleConnection($conn, $params);
     }
 
