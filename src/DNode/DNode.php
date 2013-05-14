@@ -31,7 +31,7 @@ class DNode extends EventEmitter
         $params = $this->protocol->parseArgs(func_get_args());
 
         if (!isset($params['scheme'])) {
-            $params['scheme'] = 'tcp:';
+            $params['scheme'] = 'tcp';
         }
 
         if (!isset($params['host'])) {
@@ -42,7 +42,7 @@ class DNode extends EventEmitter
             throw new \Exception("For now we only support connections to a defined port");
         }
 
-        $url = "{$params['scheme']}//{$params['host']}:{$params['port']}";
+        $url = "{$params['scheme']}://{$params['host']}:{$params['port']}";
         $client = @stream_socket_client($url);
 
         if (!$client) {
@@ -57,7 +57,7 @@ class DNode extends EventEmitter
             return;
         }
 
-        $conn = new Connection($client, $this->loop, $params['scheme']);
+        $conn = new Connection($client, $this->loop);
         $this->handleConnection($conn, $params);
     }
 
