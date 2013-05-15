@@ -5,29 +5,28 @@ use React\Socket\Connection as BaseConnection;
 
 class Connection extends BaseConnection
 {
-    private $streamReadFunctionName = 'fread';
-
-    private static $rawIoSchemes = array(
-        'tcp',
-        'udp'
-    );
-
-    public function __construct($stream, LoopInterface $loop, $scheme)
-    {
-        parent::__construct($stream, $loop);
-        if (in_array($scheme, static::$rawIoSchemes)) {
-            $this->streamReadFunctionName = 'stream_socket_recvfrom';
-        }
-    }
+    private $lastBufferSize;
 
     public function handleData($stream)
     {
-        $data = call_user_func_array($this->streamReadFunctionName, array($stream, $this->bufferSize));
+        if ($this->bufferSize != $this->lastBufferSize) {
+            $this->adjustReadBufferSize($stream);
+        }
+
+        $data = fread($stream, $this->bufferSize);
 
         if ('' === $data || false === $data) {
             $this->end();
         } else {
             $this->emit('data', array($data, $this));
+        }
+    }
+
+    protected function adjustReadBufferSize($stream)
+    {
+        $this->lastBufferSize = $this->bufferSize;
+        if (0 !== stream_set_read_buffer($stream, 0)) {
+            throw new \RuntimeException('Unable to set read buffer on stream');
         }
     }
 }
