@@ -53,10 +53,6 @@ class Protocol
                     $params['path'] = $arg;
                     continue;
                 }
-                if (preg_match('/\w+:$/', $arg)) {
-                    $params['scheme'] = $arg;
-                    continue;
-                }
                 $params['host'] = $arg;
                 continue;
             }
@@ -77,9 +73,11 @@ class Protocol
                     continue;
                 }
 
-                foreach ($arg as $key => $value) {
-                    $params[$key] = $value;
-                }
+                $arg = (array) $arg;
+            }
+
+            if (is_array($arg)) {
+                $params = array_merge($params, $arg);
                 continue;
             }
 
