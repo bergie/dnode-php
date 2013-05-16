@@ -133,7 +133,7 @@ class Session extends EventEmitter
                 $reflector = new \ReflectionClass($node);
                 $methods = $reflector->getMethods();
                 foreach ($methods as $method) {
-                    if (!$method->isPublic() || $method->isConstructor()) {
+                    if (!$method->isPublic() || $method->isConstructor() || $method->isDestructor()) {
                         continue;
                     }
 
