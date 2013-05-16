@@ -42,6 +42,12 @@ class DNode extends EventEmitter
             throw new \Exception("For now we only support connections to a defined port");
         }
 
+        if (!in_array($params['scheme'], stream_get_transports())) {
+            $e = new \InvalidArgumentException("Scheme {$params['scheme']} is not supported... are you missing an extension?");
+
+            $this->emit('error', array($e));
+        }
+
         $url = "{$params['scheme']}://{$params['host']}:{$params['port']}";
         $client = @stream_socket_client($url);
 
