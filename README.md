@@ -1,7 +1,7 @@
 DNode protocol for PHP
 ======================
 
-This project implements the [DNode](http://substack.net/posts/85e1bd/DNode-Asynchronous-Remote-Method-Invocation-for-Node-js-and-the-Browser) remote procedure call protocol for PHP. The intent is to enable PHP scripts to act as part of a distributed Node.js cloud, allowing Node to call PHP code, and PHP to call Node code.
+This project implements the [DNode](http://substack.net/dnode) remote procedure call protocol for PHP. The intent is to enable PHP scripts to act as part of a distributed Node.js cloud, allowing Node to call PHP code, and PHP to call Node code.
 
 You can read more about DNode and PHP in the [introductory blog post](http://bergie.iki.fi/blog/dnode-make_php_and_node-js_talk_to_each_other/).
 
