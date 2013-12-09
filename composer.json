@@ -19,7 +19,7 @@
     "require": {
         "php": ">=5.3.0",
         "evenement/evenement": "~1.0",
-        "react/socket": "~0.2"
+        "react/socket": "0.3.*"
     },
     "autoload": {
         "psr-0": {
