@@ -30,15 +30,22 @@ class DNode extends EventEmitter
     public function connect()
     {
         $params = $this->protocol->parseArgs(func_get_args());
-        if (!isset($params['host'])) {
-            $params['host'] = '127.0.0.1';
+        
+        if (isset($params['path'])) {
+            $client = @stream_socket_client("unix://{$params['path']}");
         }
-
-        if (!isset($params['port'])) {
-            throw new \Exception("For now we only support TCP connections to a defined port");
+        else {
+            if (!isset($params['host'])) {
+                $params['host'] = '127.0.0.1';
+            }
+    
+            if (!isset($params['port'])) {
+                throw new \Exception("For now we only support TCP connections to a defined port");
+            }
+    
+            $client = @stream_socket_client("tcp://{$params['host']}:{$params['port']}");
         }
-
-        $client = @stream_socket_client("tcp://{$params['host']}:{$params['port']}");
+        
         if (!$client) {
             $e = new \RuntimeException("No connection to DNode server in tcp://{$params['host']}:{$params['port']}");
             $this->emit('error', array($e));
