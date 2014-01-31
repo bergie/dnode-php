@@ -1,8 +1,9 @@
 CHANGELOG
 =========
 
-* 0.1.4 (2013-xx-xx)
+* 0.2.0 (2014-01-31)
 
+  * Feature: Bump react dependency to 0.3.*
   * Bugfix: Do not scrub constructor or destructor (@astephens25)
 
 * 0.1.3 (2013-02-05)
