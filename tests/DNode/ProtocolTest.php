@@ -66,6 +66,11 @@ class ProtocolTest extends TestCase
         $obj->foo = 'bar';
         $obj->baz = 'qux';
 
+        $arr = array(
+            'quux' => 'corge',
+            'grault' => 'garply'
+        );
+
         return array(
             'string number becomes port' => array(
                 array('port' => '8080'),
@@ -82,6 +87,10 @@ class ProtocolTest extends TestCase
             'integer becomes port' => array(
                 array('port' => 8080),
                 array(8080),
+            ),
+            'array becomes merged' => array(
+                array('quux' => 'corge', 'grault' => 'garply'),
+                array($arr),
             ),
             'Closure becomes block' => array(
                 array('block' => $closure),
@@ -102,11 +111,11 @@ class ProtocolTest extends TestCase
      * @test
      * @covers DNode\Protocol::parseArgs
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Not sure what to do about array arguments
+     * @expectedExceptionMessage Not sure what to do about boolean arguments
      */
     public function parseArgsShouldRejectInvalidArgs()
     {
-        $args = array(array('wat'));
+        $args = array(true);
         $this->protocol->parseArgs($args);
     }
 }

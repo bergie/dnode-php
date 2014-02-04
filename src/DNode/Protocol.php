@@ -73,9 +73,11 @@ class Protocol
                     continue;
                 }
 
-                foreach ($arg as $key => $value) {
-                    $params[$key] = $value;
-                }
+                $arg = (array) $arg;
+            }
+
+            if (is_array($arg)) {
+                $params = array_merge($params, $arg);
                 continue;
             }
 
