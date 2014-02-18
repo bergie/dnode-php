@@ -79,7 +79,7 @@ class Session extends EventEmitter
 
         if ($req->method === 'cull') {
             foreach ($req->arguments as $id) {
-                unset($this->callbacks[$req->method]);
+                unset($this->callbacks[$id]);
             }
 
             return;
