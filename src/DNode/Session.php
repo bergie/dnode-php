@@ -163,21 +163,23 @@ class Session extends EventEmitter
     private function unscrub($msg) {
         $args = $msg->arguments;
         $session = $this;
-        foreach ($msg->callbacks as $id => $path) {
-            if (!isset($this->wrapped[$id])) {
-                $this->wrapped[$id] = function() use ($session, $id) {
-                    $session->request((int) $id, func_get_args());
-                };
-            }
-            $location =& $args;
-            foreach ($path as $part) {
-                if (is_array($location)) {
-                    $location =& $location[$part];
-                    continue;
+        if (isset($msg->callbacks)) {
+            foreach ($msg->callbacks as $id => $path) {
+                if (!isset($this->wrapped[$id])) {
+                    $this->wrapped[$id] = function() use ($session, $id) {
+                        $session->request((int) $id, func_get_args());
+                    };
                 }
-                $location =& $location->$part;
+                $location =& $args;
+                foreach ($path as $part) {
+                    if (is_array($location)) {
+                        $location =& $location[$part];
+                        continue;
+                    }
+                    $location =& $location->$part;
+                }
+                $location = $this->wrapped[$id];
             }
-            $location = $this->wrapped[$id];
         }
         return $args;
     }
